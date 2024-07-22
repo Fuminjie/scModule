@@ -8,22 +8,17 @@
 #' @export
 plot_gene_signature <- function(seurat_obj, gene_set_name = "gene_set_score", reduction = "umap") {
   umap_data <- Seurat::Embeddings(seurat_obj, reduction)
-  gene_set1_score <- seurat_obj@meta.data[[gene_set1_name]]
-  gene_set2_score <- seurat_obj@meta.data[[gene_set2_name]]
+  gene_set_score <- seurat_obj@meta.data[[gene_set_name]]
 
   # Create a data frame for plotting
-  plot_data <- data.frame(UMAP1 = umap_data[, 1], UMAP2 = umap_data[, 2], GeneSet1 = gene_set1_score, GeneSet2 = gene_set2_score)
+  plot_data <- data.frame(UMAP1 = umap_data[, 1], UMAP2 = umap_data[, 2], GeneSet = gene_set_score)
 
   # Normalize scores for color blending
-  plot_data$GeneSet1_norm <- (plot_data$GeneSet1 - min(plot_data$GeneSet1)) / (max(plot_data$GeneSet1) - min(plot_data$GeneSet1))
-  plot_data$GeneSet2_norm <- (plot_data$GeneSet2 - min(plot_data$GeneSet2)) / (max(plot_data$GeneSet2) - min(plot_data$GeneSet2))
-
-  # Create a blended color based on the two normalized scores (red for GeneSet1, blue for GeneSet2, purple for coexpression)
-  plot_data$blended_color <- rgb(plot_data$GeneSet1_norm, 0, plot_data$GeneSet2_norm, maxColorValue = 1)
+  plot_data$GeneSet_norm <- (plot_data$GeneSet - min(plot_data$GeneSet)) / (max(plot_data$GeneSet) - min(plot_data$GeneSet))
 
   # Plot
   ggplot2::ggplot(plot_data, ggplot2::aes(x = UMAP1, y = UMAP2)) +
-    ggplot2::geom_point(ggplot2::aes(color = blended_color), size = 1) +
+    ggplot2::geom_point(size = 1) +
     ggplot2::scale_color_identity() +
     ggplot2::labs(title = "UMAP with Gene Set Coexpression", x = "UMAP1", y = "UMAP2") +
     ggplot2::theme_minimal()
